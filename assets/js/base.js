@@ -1,8 +1,39 @@
+document.addEventListener('DOMContentLoaded', fixLayout());
+
 window.onload = function () {
     shaveDivs();
     sanitizeEmbed();
     startClock();
 };
+
+function fixLayout() {
+    var panesWidth = 500,       // standard width of various panes throughout the page (in px)
+        minPanesWidth = 410,    // minimum allowed width for the panes (in px)
+        navbar = document.getElementsByTagName('nav')[0];
+
+    if (navbar) {
+        var pageWidth = navbar.clientWidth;
+        if (pageWidth < panesWidth && pageWidth > minPanesWidth) {
+            var embed = document.querySelector('embed[src*=playlistd]');
+            if (embed) {
+                var embedParent = embed.parentNode;
+                embed.remove();
+                embed.setAttribute('width', pageWidth);
+                embed.setAttribute('src', embed.getAttribute('src').replace(/&w=\d+/, '&w=' + pageWidth));
+
+                var container = document.getElementById("main-container");
+                if (container) {
+                    container.setAttribute('style', 'width:' + pageWidth + 'px');
+                    container && (container.style.width = pageWidth);
+                }
+
+                embedParent.appendChild(embed);
+            } else {
+                console.log('Required <embed> element cannot be found');
+            }
+        }
+    }
+}
 
 function shaveDivs() {
     var shaveInput = document.getElementById('to-shave');
