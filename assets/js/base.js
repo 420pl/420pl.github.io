@@ -1,3 +1,6 @@
+var STD_PANES_WIDTH = 500, // standard width of various panes throughout the page (in px)
+    pageWidth;
+
 document.addEventListener('DOMContentLoaded', fixLayout());
 
 window.onload = function () {
@@ -7,26 +10,33 @@ window.onload = function () {
 };
 
 function fixLayout() {
-    var panesWidth = 500,       // standard width of various panes throughout the page (in px)
-        minPanesWidth = 410,    // minimum allowed width for the panes (in px)
+    var minPanesWidth = 322,    // minimum allowed width for the panes (in px), as in base.css
         navbar = document.getElementsByTagName('nav')[0];
 
     if (navbar) {
-        var pageWidth = navbar.clientWidth;
-        if (pageWidth < panesWidth && pageWidth > minPanesWidth) {
+        pageWidth = navbar.clientWidth;
+        if (pageWidth < STD_PANES_WIDTH && pageWidth >= minPanesWidth) {
             var embed = document.querySelector('embed[src*=playlistd]');
             if (embed) {
                 var embedParent = embed.parentNode;
                 embed.remove();
                 embed.setAttribute('width', pageWidth);
                 embed.setAttribute('src', embed.getAttribute('src').replace(/&w=\d+/, '&w=' + pageWidth));
+                embed.onload = function () {
+                    var src = this.getAttribute('src'),
+                        coverUrl = getQueryParameterByName('withart', src);
 
-                var container = document.getElementById("main-container");
-                if (container) {
-                    container.setAttribute('style', 'width:' + pageWidth + 'px');
-                    container && (container.style.width = pageWidth);
-                }
+                    if (coverUrl) {
+                        var img = new Image();
+                        img.addEventListener("load", function () {
+                            var tracklistHeight = +getQueryParameterByName('height', src),
+                                coverHeight = (pageWidth - 20) * this.naturalHeight / this.naturalWidth;
 
+                            embed.setAttribute('height', tracklistHeight + coverHeight + 10);
+                        });
+                        img.src = coverUrl;
+                    }
+                };
                 embedParent.appendChild(embed);
             } else {
                 console.log('Required <embed> element cannot be found');
@@ -35,9 +45,33 @@ function fixLayout() {
     }
 }
 
+function getQueryParameterByName(name, url) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function getRequiredCoverHeight(imageUrl, pageWidth, heightVar) {
+    if (!imageUrl) {
+        heightVar = null;
+        return
+    }
+
+    var img = new Image();
+    img.addEventListener("load", function (containerWidth) {
+        return function() {
+            heightVar = (containerWidth - 20) * this.naturalHeight / this.naturalWidth;
+        }
+    }(pageWidth));
+    img.src = imageUrl;
+}
+
 function shaveDivs() {
     var shaveInput = document.getElementById('to-shave');
-    if (shaveInput) {
+    if (shaveInput && pageWidth >= STD_PANES_WIDTH) {
         var selectorsAndHeights = shaveInput.value.split('|');
         for (var i = 0; i < selectorsAndHeights.length; i++) {
             var selectorHeightPair = selectorsAndHeights[i].split(';');

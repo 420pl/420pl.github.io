@@ -37,7 +37,7 @@ a {
     height: 43px;
     margin-left: auto;
     margin-right: auto;
-    width: 500px;
+    max-width: 500px;
 }
 
 .site-title {
@@ -59,7 +59,8 @@ a {
     margin-left: auto;
     margin-right: auto;
     padding-top: 35px;
-    width: 500px;
+    max-width: 500px;
+    min-width: 322px;
 }
 
 .playlist-header {
@@ -175,7 +176,7 @@ i.fa-clock-o {
     margin-left: auto;
     margin-right: auto;
     width: 80%;
-    min-width: 500px;
+    min-width: 322px;
     text-align: center;
 }
 
