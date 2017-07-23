@@ -9,6 +9,21 @@
         {% endif %}
     </title>
 
+    <meta content="4:20" property="og:site_name">
+
+{% if page.author %}
+    {% assign author = site.data.authors[page.author] %}
+    <meta name="author" content="{{ author.name }}">
+    {% if page.track_count %}
+    <meta name="description" content="{{ page.title }} от {{ author.name }} | Треков: {{ page.track_count }} | Продолжительность: {{ page.duration }}">
+
+    <meta property="og:title" content="{{ page.title }}">
+    <meta property="og:description" content="Продолжительность: {{ page.duration }} (треков: {{ page.track_count }})">
+    <meta property="og:image" content="{{ page.cover }}">
+    {% endif %}
+{% endif %}
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
